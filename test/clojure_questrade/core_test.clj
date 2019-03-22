@@ -4,5 +4,14 @@
 
 
 (deftest example-get-test
-  (testing (get (example-get) :status)
+  (def response
+    (example-get "http://example.com"))
+  (testing (get response :status)
+    (is (= 200))))
+
+(deftest get-balances-test
+  (def response
+    (get-balances "https://example.com"
+                  "qwerty"))
+  (testing (get response :status)
     (is (= 200))))

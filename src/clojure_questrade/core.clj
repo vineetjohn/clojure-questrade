@@ -4,5 +4,11 @@
 
 (defn example-get
   "Example GET request"
-  []
-  (client/get "http://example.com"))
+  [url]
+  (client/get url))
+
+(defn get-balances
+  "Get Questrade balances"
+  [api-url, access-token]
+  (client/get api-url
+              {:oauth-token access-token}))
