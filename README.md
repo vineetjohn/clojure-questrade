@@ -1,5 +1,7 @@
 # Clojure - Questrade
 
+[![Build Status](https://travis-ci.com/vineetjohn/clojure-questrade.svg?token=9zWLe6zMeUk6X9pWXLzU&branch=master)](https://travis-ci.com/vineetjohn/clojure-questrade)
+
 A Clojure library designed to retrieve and report account details on Questrade.
 
 ## Usage
