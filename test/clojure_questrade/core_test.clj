@@ -1,7 +1,8 @@
 (ns clojure-questrade.core-test
   (:require [clojure.test :refer :all]
             [clojure-questrade.core :refer :all]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [cheshire.core :as ches]))
 
 
 (deftest get-token-endpoint-test
@@ -27,5 +28,11 @@
     (testing (is (= 200 (get response :status))))))
 
 (deftest read-refresh-token-test
-  (def contents (read-refresh-token))
-  (testing (is (not (string/blank? contents)))))
+  (testing (is (not (string/blank? (read-refresh-token))))))
+
+(deftest save-refresh-token-test
+  (save-refresh-token {:key "xyz"})
+  (testing (is (= (get (ches/parse-stream (clojure.java.io/reader
+                                           refresh-token-file-path))
+                       "key")
+                  "xyz"))))

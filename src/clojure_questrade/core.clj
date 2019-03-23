@@ -1,6 +1,6 @@
 (ns clojure-questrade.core
   (:require [clj-http.client :as client]
-            [clojure.data.json :as json]))
+            [cheshire.core :as ches]))
 
 
 (def refresh-token-file-path ".refresh-token.json")
@@ -36,5 +36,12 @@
 (defn read-refresh-token
   "Reads the current refresh toke from a file"
   []
-  (def file-contents (json/read-str (slurp refresh-token-file-path)))
-  (get file-contents "key"))
+  (get (ches/parse-stream (clojure.java.io/reader refresh-token-file-path))
+       "key"))
+
+(defn save-refresh-token
+  "Saves the new refresh toke to a file"
+  [content]
+  (ches/generate-stream content
+                        (clojure.java.io/writer refresh-token-file-path)
+                        {:pretty true}))
