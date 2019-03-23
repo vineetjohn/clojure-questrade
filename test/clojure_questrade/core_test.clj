@@ -9,10 +9,10 @@
     (example-get "http://example.com"))
   (testing (is (= 200 (get response :status)))))
 
-(deftest get-balances-test
+(deftest get-positions-test
   (def response
-    (get-balances "https://example.com"
-                  "qwerty"))
+    (get-positions "https://example.com"
+                   "qwerty"))
   (testing (is (= 200 (get response :status)))))
 
 (deftest read-refresh-token-test

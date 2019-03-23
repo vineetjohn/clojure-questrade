@@ -17,8 +17,8 @@
               {:query-params {:grant_type "refresh_token"
                               :refresh_token refresh-token}}))
 
-(defn get-balances
-  "Get Questrade balances"
+(defn get-positions
+  "Get Questrade positions"
   [api-url, access-token]
   (client/get api-url
               {:oauth-token access-token}))
