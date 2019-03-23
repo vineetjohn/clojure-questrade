@@ -12,6 +12,11 @@
                        "&refresh_token=123456")
                   endpoint))))
 
+(deftest get-tokens-test
+  (def response
+    (get-tokens "https://example.com"
+                "qwerty"))
+  (testing (is (= 200 (get response :status)))))
 
 (deftest get-positions-endpoint-test
   (def endpoint (get-positions-endpoint "https://example.com" "123456"))

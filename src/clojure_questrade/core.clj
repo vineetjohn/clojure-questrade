@@ -3,6 +3,8 @@
             [cheshire.core :as ches]
             [clojure.tools.logging :as log]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Constants
 
 (def refresh-token-file-path ".refresh-token.json")
 (def refresh-token-api-endpoint
@@ -11,17 +13,23 @@
        "&refresh_token=%s"))
 (def positions-api-endpoint "%s/v1/accounts/%s/positions")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Auth tokens
+
 (defn get-token-endpoint
   "Get Questrade endpoint to get tokens"
   [refresh-token]
   (format refresh-token-api-endpoint refresh-token))
 
-(defn get-access-token
-  "Get Questrade access token"
-  [api-url, refresh-token]
-  (client/get api-url
+(defn get-tokens
+  "Get new Questrade tokens and API URL"
+  [auth-url, refresh-token]
+  (client/get auth-url
               {:query-params {:grant_type "refresh_token"
                               :refresh_token refresh-token}}))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Questrade Positions
 
 (defn get-positions-endpoint
   "Get Questrade positions api endpoint"
@@ -33,6 +41,9 @@
   [api-url, account-id, access-token]
   (client/get (get-positions-endpoint api-url account-id)
               {:oauth-token access-token}))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; JSON I/O
 
 (defn read-refresh-token
   "Reads the current refresh toke from a file"
@@ -47,8 +58,12 @@
                         (clojure.java.io/writer refresh-token-file-path)
                         {:pretty true}))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn -main
   "Program entry point"
   [& args]
   (log/info "Starting program execution")
+  (def refresh-token (read-refresh-token))
+  (log/info refresh-token)
   (log/info "Completed program execution"))
