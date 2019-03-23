@@ -1,14 +1,20 @@
-# clojure-questrade
+# Clojure - Questrade
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure library designed to retrieve and report account details on Questrade.
 
 ## Usage
 
-FIXME
+## Setup
+- Install [Clojure](https://clojure.org/)
+- Install [Leiningen](https://leiningen.org/)
+
+### Run tests
+- `lein test`
+
 
 ## License
 
-Copyright © 2019 FIXME
+Copyright © 2019 Vineet John
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
