@@ -4,10 +4,13 @@
             [clojure.string :as string]))
 
 
-(deftest example-get-test
-  (def response
-    (example-get "http://example.com"))
-  (testing (is (= 200 (get response :status)))))
+(deftest get-token-endpoint-test
+  (def endpoint (get-token-endpoint "123456"))
+  (testing (is (= (str "https://login.questrade.com/oauth2/token"
+                       "?grant_type=refresh_token"
+                       "&refresh_token=123456")
+                  endpoint))))
+
 
 (deftest get-positions-endpoint-test
   (def endpoint (get-positions-endpoint "https://example.com" "123456"))
