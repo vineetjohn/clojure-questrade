@@ -1,6 +1,9 @@
 (ns clojure-questrade.core
-  (:require [clj-http.client :as client]))
+  (:require [clj-http.client :as client]
+            [clojure.data.json :as json]))
 
+
+(def refresh-token-file-path ".refresh-token.json")
 
 (defn example-get
   "Example GET request"
@@ -19,3 +22,9 @@
   [api-url, access-token]
   (client/get api-url
               {:oauth-token access-token}))
+
+(defn read-refresh-token
+  "Reads the current refresh toke from a file"
+  []
+  (def file-contents (json/read-str (slurp refresh-token-file-path)))
+  (get file-contents "key"))
