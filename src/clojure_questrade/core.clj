@@ -1,7 +1,7 @@
 (ns clojure-questrade.core
-  (:require [clj-http.client :as client]
-            [cheshire.core :as ches]
-            [clojure.tools.logging :as log]))
+  (:require [cheshire.core :as ches]
+            [clojure.tools.logging :as log]
+            [clojure-questrade.auth :as auth]))
 
 ; Constants
 
