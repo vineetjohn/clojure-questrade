@@ -1,6 +1,7 @@
 (ns clojure-questrade.core
   (:require [clj-http.client :as client]
-            [cheshire.core :as ches]))
+            [cheshire.core :as ches]
+            [clojure.tools.logging :as log]))
 
 
 (def refresh-token-file-path ".refresh-token.json")
@@ -45,3 +46,9 @@
   (ches/generate-stream content
                         (clojure.java.io/writer refresh-token-file-path)
                         {:pretty true}))
+
+(defn -main
+  "Program entry point"
+  [& args]
+  (log/info "Starting program execution")
+  (log/info "Completed program execution"))
