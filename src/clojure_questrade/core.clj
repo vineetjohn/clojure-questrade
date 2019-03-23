@@ -4,6 +4,7 @@
 
 
 (def refresh-token-file-path ".refresh-token.json")
+(def positions-api-endpoint "%s/v1/accounts/%s/positions")
 
 (defn example-get
   "Example GET request"
@@ -17,10 +18,15 @@
               {:query-params {:grant_type "refresh_token"
                               :refresh_token refresh-token}}))
 
+(defn get-positions-endpoint
+  "Get Questrade positions api endpoint"
+  [api-url, account-id]
+  (format positions-api-endpoint api-url account-id))
+
 (defn get-positions
   "Get Questrade positions"
-  [api-url, access-token]
-  (client/get api-url
+  [api-url, account-id, access-token]
+  (client/get (get-positions-endpoint api-url account-id)
               {:oauth-token access-token}))
 
 (defn read-refresh-token
