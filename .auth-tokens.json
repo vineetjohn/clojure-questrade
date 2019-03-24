@@ -1,0 +1,5 @@
+{
+  "access_token": "abc",
+  "refresh_token": "xyz",
+  "api_server": "https://example.com/"
+}
