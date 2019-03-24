@@ -9,16 +9,20 @@
                              "\"expires_in\": 10,"
                              "\"refresh_token\": \"xyz\","
                              "\"token_type\": \"Bearer\"}"))
+(def test-auth-tokens {:access_token "abc-new"
+                       :refresh_token "xyz-new"
+                       :api_server "https://example.com/new"})
 
-(deftest read-refresh-token-test
-  (testing (is (not (string/blank? (read-refresh-token))))))
+(deftest read-auth-tokens-test
+  (def new-auth-tokens (read-auth-tokens))
+  (is (not (nil? new-auth-tokens)))
+  (is (not (empty? new-auth-tokens))))
 
-(deftest save-refresh-token-test
-  (save-refresh-token {:key "xyz"})
-  (testing (is (= (get (ches/parse-stream (clojure.java.io/reader
-                                           refresh-token-file-path))
-                       "key")
-                  "xyz"))))
+(deftest save-auth-tokens-test
+  (save-auth-tokens test-auth-tokens)
+  (def persisted-auth-tokens
+    (ches/parse-stream (clojure.java.io/reader auth-tokens-file-path) true))
+  (is (= persisted-auth-tokens test-auth-tokens)))
 
 (deftest parse-tokens-test
   (def tokens (parse-tokens test-response-body))

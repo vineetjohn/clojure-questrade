@@ -5,16 +5,15 @@
 
 ; Constants
 
-(def refresh-token-file-path ".refresh-token.json")
+(def auth-tokens-file-path ".auth-tokens.json")
 
 
 ; JSON I/O
 
-(defn read-refresh-token
+(defn read-auth-tokens
   "Reads the current refresh toke from a file"
   []
-  (get (ches/parse-stream (clojure.java.io/reader refresh-token-file-path))
-       "key"))
+  (ches/parse-stream (clojure.java.io/reader auth-tokens-file-path)))
 
 (defn parse-tokens
   "Parse needed tokens from auth response"
@@ -22,11 +21,11 @@
   (select-keys (ches/parse-string auth-response-body true)
                [:refresh_token :access_token :api_server]))
 
-(defn save-refresh-token
-  "Saves the new refresh toke to a file"
+(defn save-auth-tokens
+  "Saves the new tokens to a file"
   [content]
   (ches/generate-stream content
-                        (clojure.java.io/writer refresh-token-file-path)
+                        (clojure.java.io/writer auth-tokens-file-path)
                         {:pretty true}))
 
 
@@ -37,11 +36,13 @@
   [& args]
   (log/info "Starting program execution")
   (try
-    (def response (auth/get-auth-response (read-refresh-token)))
-    (log/info response)
-    (def auth-object (parse-tokens (get response :body)))
-    (log/info auth-object)
-    (save-refresh-token {:key (get auth-object :refresh_token)})
+    (def auth-response
+      (auth/get-auth-response (get (read-auth-tokens) :refresh_token)))
+    (log/info auth-response)
+    (def auth-tokens
+      (parse-tokens (get auth-response :body)))
+    (log/info auth-tokens)
+    (save-auth-tokens auth-tokens)
     (catch Exception e
       (log/error (str "Unable to get save refresh token: "
                       (.getMessage e)))))
