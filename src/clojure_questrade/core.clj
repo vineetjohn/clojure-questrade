@@ -13,7 +13,7 @@
 (defn read-auth-tokens
   "Reads the current refresh toke from a file"
   []
-  (ches/parse-stream (clojure.java.io/reader auth-tokens-file-path)))
+  (ches/parse-stream (clojure.java.io/reader auth-tokens-file-path) true))
 
 (defn parse-tokens
   "Parse needed tokens from auth response"
@@ -35,10 +35,10 @@
   (try
     (def auth-response
       (auth/get-auth-response (get (read-auth-tokens) :refresh_token)))
-    (log/info auth-response)
+    (log/info "auth-response" auth-response)
     (def auth-tokens
       (parse-tokens (get auth-response :body)))
-    (log/info auth-tokens)
+    (log/info "auth-tokens" auth-tokens)
     (save-auth-tokens auth-tokens)
     (log/info "Credentials updated")
     (catch Exception e
