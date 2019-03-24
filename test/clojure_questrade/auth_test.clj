@@ -11,9 +11,9 @@
                            :refresh_token "xyz"
                            :token_type "Bearer"}})
 
-(deftest get-tokens-test
+(deftest get-auth-response-test
   (with-redefs [client/get (fn [url, query_params] test-response)]
-    (def response (get-tokens "qwerty"))
+    (def response (get-auth-response "qwerty"))
     (def response-status (get response :status))
     (is (= 200 response-status))
     (def response-body (get response :body))
