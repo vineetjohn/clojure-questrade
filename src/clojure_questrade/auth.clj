@@ -11,8 +11,3 @@
               {:query-params {:grant_type "refresh_token"
                               :refresh_token refresh-token}}))
 
-(defn parse-tokens
-  "Parse needed tokens from auth response"
-  [auth-response]
-  (select-keys (get auth-response :body)
-               [:refresh_token :access_token :api_server]))

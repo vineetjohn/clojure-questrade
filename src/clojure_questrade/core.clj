@@ -16,6 +16,12 @@
   (get (ches/parse-stream (clojure.java.io/reader refresh-token-file-path))
        "key"))
 
+(defn parse-tokens
+  "Parse needed tokens from auth response"
+  [auth-response-body]
+  (select-keys (ches/parse-string auth-response-body true)
+               [:refresh_token :access_token :api_server]))
+
 (defn save-refresh-token
   "Saves the new refresh toke to a file"
   [content]
@@ -33,7 +39,7 @@
   (try
     (def response (auth/get-auth-response (read-refresh-token)))
     (log/info response)
-    (def auth-object (auth/parse-tokens response))
+    (def auth-object (parse-tokens (get response :body)))
     (log/info auth-object)
     (def save-refresh-token {:key (get auth-object :refresh_token)})
     (catch Exception e
