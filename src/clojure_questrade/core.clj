@@ -30,9 +30,13 @@
   "Program entry point"
   [& args]
   (log/info "Starting program execution")
-  (def response (auth/get-auth-response (read-refresh-token)))
-  (log/info response)
-  (def auth-object (auth/parse-tokens response))
-  (log/info auth-object)
-  (def save-refresh-token {:key (get auth-object :refresh_token)})
+  (try
+    (def response (auth/get-auth-response (read-refresh-token)))
+    (log/info response)
+    (def auth-object (auth/parse-tokens response))
+    (log/info auth-object)
+    (def save-refresh-token {:key (get auth-object :refresh_token)})
+    (catch Exception e
+      (log/error (str "Unable to get save refresh token: "
+                      (.getMessage e)))))
   (log/info "Completed program execution"))
