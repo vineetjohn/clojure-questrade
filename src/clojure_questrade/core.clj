@@ -41,7 +41,7 @@
     (log/info response)
     (def auth-object (parse-tokens (get response :body)))
     (log/info auth-object)
-    (def save-refresh-token {:key (get auth-object :refresh_token)})
+    (save-refresh-token {:key (get auth-object :refresh_token)})
     (catch Exception e
       (log/error (str "Unable to get save refresh token: "
                       (.getMessage e)))))
