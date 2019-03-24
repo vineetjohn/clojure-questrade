@@ -30,6 +30,6 @@
   "Program entry point"
   [& args]
   (log/info "Starting program execution")
-  (def refresh-token (read-refresh-token))
-  (log/info refresh-token)
+  (def response (auth/get-tokens (read-refresh-token)))
+  (log/info response)
   (log/info "Completed program execution"))
