@@ -14,5 +14,5 @@
 (defn parse-tokens
   "Parse needed tokens from auth response"
   [auth-response]
-  (select-keys auth-response
+  (select-keys (get auth-response :body)
                [:refresh_token :access_token :api_server]))

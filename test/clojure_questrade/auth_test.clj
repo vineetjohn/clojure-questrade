@@ -20,3 +20,9 @@
     (is (= (get response-body :refresh_token) "xyz"))
     (is (= (get response-body :access_token) "abc"))
     (is (= (get response-body :api_server) "https://example.com/"))))
+
+(deftest parse-tokens-test
+  (def tokens (parse-tokens test-response))
+  (is (= (get tokens :refresh_token) "xyz"))
+  (is (= (get tokens :access_token) "abc"))
+  (is (= (get tokens :api_server) "https://example.com/")))
