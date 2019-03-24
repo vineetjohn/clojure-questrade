@@ -32,4 +32,7 @@
   (log/info "Starting program execution")
   (def response (auth/get-auth-response (read-refresh-token)))
   (log/info response)
+  (def auth-object (auth/parse-tokens response))
+  (log/info auth-object)
+  (def save-refresh-token {:key (get auth-object :refresh_token)})
   (log/info "Completed program execution"))
