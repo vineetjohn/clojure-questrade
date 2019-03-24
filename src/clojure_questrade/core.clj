@@ -29,12 +29,9 @@
                         {:pretty true}))
 
 
-; Main
-
-(defn -main
-  "Program entry point"
-  [& args]
-  (log/info "Starting program execution")
+; Helpers
+(defn update-credentials
+  []
   (try
     (def auth-response
       (auth/get-auth-response (get (read-auth-tokens) :refresh_token)))
@@ -43,7 +40,18 @@
       (parse-tokens (get auth-response :body)))
     (log/info auth-tokens)
     (save-auth-tokens auth-tokens)
+    (log/info "Credentials updated")
     (catch Exception e
       (log/error (str "Unable to get save refresh token: "
-                      (.getMessage e)))))
+                      (.getMessage e)))
+      (throw e))))
+
+
+; Main
+
+(defn -main
+  "Program entry point"
+  [& args]
+  (log/info "Starting program execution")
+  (update-credentials)
   (log/info "Completed program execution"))
