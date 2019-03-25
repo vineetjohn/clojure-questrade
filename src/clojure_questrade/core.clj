@@ -1,7 +1,8 @@
 (ns clojure-questrade.core
   (:require [cheshire.core :as ches]
             [clojure.tools.logging :as log]
-            [clojure-questrade.auth :as auth]))
+            [clojure-questrade.auth :as auth]
+            [clojure-questrade.positions :as positions]))
 
 ; Constants
 
@@ -54,4 +55,12 @@
   [& args]
   (log/info "Starting program execution")
   (update-credentials)
+  (def auth-tokens (read-auth-tokens))
+  (def access-token (get auth-tokens :access_token))
+  (def api-server (get auth-tokens :api_server))
+  (def acc-positions
+    (get (positions/get-positions api-server
+                                  "123456"
+                                  access-token) :body))
+  (log/info acc-positions)
   (log/info "Completed program execution"))
