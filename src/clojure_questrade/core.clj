@@ -82,9 +82,10 @@
   (def auth-tokens (read-auth-tokens))
   (def access-token (get auth-tokens :access_token))
   (def api-server (get auth-tokens :api_server))
-  (def acc-positions
+  (def acc-positions-body
     (get (positions/get-positions api-server
                                   account-id
                                   access-token) :body))
+  (def acc-positions (get (ches/parse-string acc-positions-body) "positions"))
   (log/info acc-positions)
   (log/info "Completed program execution"))
