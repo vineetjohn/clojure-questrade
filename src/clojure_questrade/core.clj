@@ -61,7 +61,7 @@
     (save-auth-tokens auth-tokens)
     (log/info "Credentials updated")
     (catch Exception e
-      (log/error (str "Unable to get save refresh token: "
+      (log/error (str "Unable to save refresh token: "
                       (.getMessage e)))
       (throw e))))
 
