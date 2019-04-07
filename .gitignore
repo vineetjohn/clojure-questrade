@@ -13,3 +13,7 @@ pom.xml.asc
 .nrepl-port
 .cpcache/
 
+# Custom
+.accounts.json
+.auth-tokens.json
+
