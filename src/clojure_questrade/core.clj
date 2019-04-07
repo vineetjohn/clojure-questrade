@@ -88,6 +88,7 @@
   ; (log/info acc-activities)
   (doseq [item acc-activities]
     (log/info item)
+    (def netAmount (double (get item "netAmount")))
     (def settleDate (clojure.instant/read-instant-date
                      (get item "settlementDate"))))
   (log/info "Completed program execution"))
