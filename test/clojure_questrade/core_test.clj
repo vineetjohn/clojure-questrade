@@ -13,8 +13,8 @@
                        :refresh_token "xyz-new"
                        :api_server "https://example.com/new"})
 
-(deftest read-auth-tokens-test
-  (def new-auth-tokens (read-auth-tokens))
+(deftest read-json-with-keys-test
+  (def new-auth-tokens (read-json-with-keys auth-tokens-file-path))
   (is (not (nil? new-auth-tokens)))
   (is (not (empty? new-auth-tokens))))
 
