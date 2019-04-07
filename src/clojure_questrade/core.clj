@@ -87,5 +87,7 @@
   (def acc-activities (get (ches/parse-string acc-activities-body) "activities"))
   ; (log/info acc-activities)
   (doseq [item acc-activities]
-    (log/info item))
+    (log/info item)
+    (def settleDate (clojure.instant/read-instant-date
+                     (get item "settlementDate"))))
   (log/info "Completed program execution"))
