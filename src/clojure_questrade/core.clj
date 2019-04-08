@@ -22,6 +22,8 @@
 (def auth-tokens-file-path ".auth-tokens.json")
 (def accounts-file-path ".accounts.json")
 
+; Structs
+(def trade (create-struct :symbol :net-amount :date :quantity))
 
 ; JSON I/O
 
@@ -64,6 +66,14 @@
       (throw e))))
 
 
+(defn convert-activity-to-trade
+  [activity]
+  (struct trade
+          (get activity "symbol")
+          (get activity "netAmount")
+          (get activity "settlementDate")
+          (get activity "quantity")))
+
 ; Main
 
 (defn -main
@@ -85,10 +95,6 @@
                                     account-id
                                     access-token) :body))
   (def acc-activities (get (ches/parse-string acc-activities-body) "activities"))
-  ; (log/info acc-activities)
-  (doseq [item acc-activities]
-    (log/info item)
-    (def netAmount (double (get item "netAmount")))
-    (def settleDate (clojure.instant/read-instant-date
-                     (get item "settlementDate"))))
+  (def trades (map convert-activity-to-trade acc-activities))
+  (log/info trades)
   (log/info "Completed program execution"))
