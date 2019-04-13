@@ -96,12 +96,20 @@
           (get date-range :end)) :body))
   (get (ches/parse-string acc-activities-body) "activities"))
 
+(defn calculate-acb-for-symbol
+  "Calculate ACB for a given symbol"
+  []
+  (log/info "Calculated ACB for symbol"))
+
 (defn calculate-acb
   "Calculate the adjusted cost base given an account and the date ranges"
   [account-id, date-ranges]
+  ; Read auth and api details
   (def auth-tokens (read-json-with-keys auth-tokens-file-path))
   (def access-token (get auth-tokens :access_token))
   (def api-server (get auth-tokens :api_server))
+
+  ; Make calls to Questrade API
   (def activities
     (reduce concat ()
             (map (fn [x]
@@ -110,11 +118,18 @@
                  date-ranges)))
   (log/info activities)
   (log/info (str "Total of " (count activities) " activities"))
+
+  ; Parse activities into trades
   (def trades
     (map convert-activity-to-trade
          (filter is-trade activities)))
   (log/info trades)
   (log/info (str "Total of " (count trades) " trades"))
+
+  ; Get unique symbols traded
+  (def symbols (set (map (fn [x] (get x :symbol)) trades)))
+  (log/info (str "symbols: " symbols))
+
   (log/info "Completed ACB calculation"))
 
 
