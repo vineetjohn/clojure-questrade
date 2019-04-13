@@ -87,13 +87,7 @@
 
 (defn calculate-acb
   "Calculate the adjusted cost base given an account"
-  [parsed-options]
-  (def account
-    (get (read-json-with-keys accounts-file-path)
-         (keyword (get parsed-options :account_name))))
-  (def account-id (get account :id))
-  (log/info account-id)
-  (update-credentials)
+  [account-id]
   (def auth-tokens (read-json-with-keys auth-tokens-file-path))
   (def access-token (get auth-tokens :access_token))
   (def api-server (get auth-tokens :api_server))
@@ -117,4 +111,10 @@
   [& args]
   (log/info "Starting program execution")
   (def parsed-options (get (cli/parse-opts args cli-options) :options))
-  (calculate-acb parsed-options))
+  (def account
+    (get (read-json-with-keys accounts-file-path)
+         (keyword (get parsed-options :account_name))))
+  (def account-id (get account :id))
+  (log/info account-id)
+  (update-credentials)
+  (calculate-acb account-id))
