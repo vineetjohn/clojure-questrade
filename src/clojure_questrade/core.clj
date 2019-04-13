@@ -100,7 +100,9 @@
 (defn calc-cap-gains-for-symbol
   "Calculate ACB for a given symbol"
   [trades]
-  (log/info "Calculated ACB for symbol"))
+  (def shares 0)
+  (def paid 0)
+  (int 0))
 
 (defn calc-cap-gains
   "Calculate the adjusted cost base given an account and the date ranges"
@@ -130,6 +132,19 @@
   ; Get unique symbols traded
   (def symbols (set (map (fn [x] (get x :symbol)) trades)))
   (log/info (str "symbols: " symbols))
+
+  (def symbol-trades
+    (map
+     (fn [x] (filter (fn [y] (= x (get y :symbol))) trades))
+     symbols))
+  (log/info symbol-trades)
+
+  (def symbol-capital-gains
+    (map
+     calc-cap-gains-for-symbol
+     symbol-trades))
+  (log/info (str "Capital gains for symbols "
+                 (apply list symbol-capital-gains)))
 
   (log/info "Completed ACB calculation"))
 
