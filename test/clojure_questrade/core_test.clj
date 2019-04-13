@@ -23,3 +23,11 @@
   (is (= (get tokens :refresh_token) "xyz"))
   (is (= (get tokens :access_token) "abc"))
   (is (= (get tokens :api_server) "https://example.com/")))
+
+(deftest is-trade-test
+  (def mock-activity-1 {"action" "Buy"})
+  (def mock-activity-2 {"action" "Deposit"})
+  (def mock-activity-3 {"action" "Sell"})
+  (is (is-trade mock-activity-1))
+  (is (not (is-trade mock-activity-2)))
+  (is (is-trade mock-activity-3)))

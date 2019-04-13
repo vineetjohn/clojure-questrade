@@ -66,6 +66,11 @@
       (throw e))))
 
 
+(defn is-trade
+  [activity]
+  (def action (get activity "action"))
+  (or (= action "Buy") (= action "Sell")))
+
 (defn convert-activity-to-trade
   [activity]
   (struct trade
@@ -94,7 +99,11 @@
     (get (activities/get-activities api-server
                                     account-id
                                     access-token) :body))
-  (def acc-activities (get (ches/parse-string acc-activities-body) "activities"))
-  (def trades (map convert-activity-to-trade acc-activities))
+  (def acc-activities
+    (get (ches/parse-string acc-activities-body) "activities"))
+  (log/info acc-activities)
+  (def trades
+    (map convert-activity-to-trade
+         (filter is-trade acc-activities)))
   (log/info trades)
   (log/info "Completed program execution"))
