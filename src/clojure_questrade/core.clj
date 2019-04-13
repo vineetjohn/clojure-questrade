@@ -27,6 +27,7 @@
 
 ; Structs
 (def trade (create-struct :symbol :net-amount :date :quantity))
+(def date-range (create-struct :start :end))
 
 
 ; JSON I/O
@@ -105,6 +106,31 @@
   (log/info "Completed program execution"))
 
 
+(defn format-date
+  "Formats dates according to the ISO 8601 standard with Zulu time,
+  rounded down to the zeroth hour"
+  [date]
+  (jtime/format "yyyy-MM-dd'T'00:00:00'Z'" date))
+
+
+(defn get-date-range
+  "Constructs a date range structure and stringifies the dates"
+  [start, end]
+  (struct date-range
+          (format-date start)
+          (format-date end)))
+
+
+(defn get-date-ranges
+  "Get the date ranges to retrieve activities for"
+  [start]
+  (def now (jtime/zoned-date-time))
+  (def end (java-time/plus start (java-time/days 30)))
+  (if (= (jtime/max end now) end)
+    (get-date-range start now)
+    (list* (get-date-range start end) (get-date-ranges end))))
+
+
 ; Main
 (defn -main
   "Program entry point"
@@ -115,6 +141,11 @@
     (get (read-json-with-keys accounts-file-path)
          (keyword (get parsed-options :account_name))))
   (def account-id (get account :id))
-  (log/info account-id)
+  (def account-start
+    (jtime/zoned-date-time "yyyy-MM-dd HH:mm:ss VV"
+                           (get account :start-date)))
+  (log/info (str account-id ", " account-start))
+  (def date-ranges (get-date-ranges account-start))
+  (log/info date-ranges)
   (update-credentials)
   (calculate-acb account-id))
