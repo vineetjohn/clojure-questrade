@@ -3,9 +3,11 @@
             [clojure.tools.logging :as log]
             [clojure.tools.cli :as cli]
             [clojure.string :as string]
+            [java-time :as jtime]
             [clojure-questrade.auth :as auth]
             [clojure-questrade.activities :as activities]
             [clojure-questrade.positions :as positions]))
+
 
 ; Command line options
 (def cli-options
@@ -17,16 +19,17 @@
                "Account identifier is needed"]]
    ["-h" "--help"]])
 
-; Constants
 
+; Constants
 (def auth-tokens-file-path ".auth-tokens.json")
 (def accounts-file-path ".accounts.json")
+
 
 ; Structs
 (def trade (create-struct :symbol :net-amount :date :quantity))
 
-; JSON I/O
 
+; JSON I/O
 (defn read-json-with-keys
   "Reads the current refresh toke from a file"
   [file-path]
@@ -79,8 +82,8 @@
           (get activity "settlementDate")
           (get activity "quantity")))
 
-; Main
 
+; Main
 (defn -main
   "Program entry point"
   [& args]

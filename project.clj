@@ -7,6 +7,7 @@
                  [org.clojure/tools.logging "0.4.1"]
                  [org.clojure/tools.cli "0.4.1"]
                  [clj-http "3.9.1"]
+                 [clojure.java-time "0.3.2"]
                  [cheshire "5.8.1"]]
   :repl-options {:init-ns clojure-questrade.core}
   :main clojure-questrade.core)
