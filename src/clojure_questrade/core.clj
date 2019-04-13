@@ -49,8 +49,9 @@
                         {:pretty true}))
 
 
-; Helpers
+; Helper methods
 (defn update-credentials
+  "Update the access and refresh tokens used to access API"
   []
   (try
     (def auth-response
@@ -68,13 +69,14 @@
                       (.getMessage e)))
       (throw e))))
 
-
 (defn is-trade
+  "Check if an activity is a trade or not"
   [activity]
   (def action (get activity "action"))
   (or (= action "Buy") (= action "Sell")))
 
 (defn convert-activity-to-trade
+  "Convert an activity to a minimal trade information structure"
   [activity]
   (struct trade
           (get activity "symbol")
@@ -83,12 +85,9 @@
           (get activity "quantity")))
 
 
-; Main
-(defn -main
-  "Program entry point"
-  [& args]
-  (log/info "Starting program execution")
-  (def parsed-options (get (cli/parse-opts args cli-options) :options))
+(defn calculate-acb
+  "Calculate the adjusted cost base given an account"
+  [parsed-options]
   (def account
     (get (read-json-with-keys accounts-file-path)
          (keyword (get parsed-options :account_name))))
@@ -104,9 +103,18 @@
                                     access-token) :body))
   (def acc-activities
     (get (ches/parse-string acc-activities-body) "activities"))
-  (log/info acc-activities)
+  ; (log/info acc-activities)
   (def trades
     (map convert-activity-to-trade
          (filter is-trade acc-activities)))
   (log/info trades)
   (log/info "Completed program execution"))
+
+
+; Main
+(defn -main
+  "Program entry point"
+  [& args]
+  (log/info "Starting program execution")
+  (def parsed-options (get (cli/parse-opts args cli-options) :options))
+  (calculate-acb parsed-options))
