@@ -8,13 +8,13 @@
 
 (defn get-activities-endpoint
   "Get Questrade activities api endpoint"
-  ; [api-url, account-id, start-time, end-time]
-  [api-url, account-id]
+  [api-url, account-id, start, end]
+  (log/info (str "Request from " start " to " end))
   (format activities-api-endpoint api-url account-id
-          "2019-01-01T00:00:00Z" "2019-01-31T00:00:00Z"))
+          start end))
 
-(defn get-activities
+(defn call-activities-api
   "Get Questrade activities"
-  [api-url, account-id, access-token]
-  (client/get (get-activities-endpoint api-url account-id)
+  [api-url, account-id, access-token, start, end]
+  (client/get (get-activities-endpoint api-url account-id start, end)
               {:oauth-token access-token}))

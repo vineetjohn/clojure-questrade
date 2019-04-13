@@ -86,24 +86,36 @@
           (get activity "quantity")))
 
 
+(defn get-activities
+  "Gets the account activities for a particular date range"
+  [api-url, account-id, access-token, date-range]
+  (def acc-activities-body
+    (get (activities/call-activities-api
+          api-url account-id access-token
+          (get date-range :start)
+          (get date-range :end)) :body))
+  (get (ches/parse-string acc-activities-body) "activities"))
+
 (defn calculate-acb
-  "Calculate the adjusted cost base given an account"
-  [account-id]
+  "Calculate the adjusted cost base given an account and the date ranges"
+  [account-id, date-ranges]
   (def auth-tokens (read-json-with-keys auth-tokens-file-path))
   (def access-token (get auth-tokens :access_token))
   (def api-server (get auth-tokens :api_server))
-  (def acc-activities-body
-    (get (activities/get-activities api-server
-                                    account-id
-                                    access-token) :body))
-  (def acc-activities
-    (get (ches/parse-string acc-activities-body) "activities"))
-  ; (log/info acc-activities)
+  (def activities
+    (reduce concat ()
+            (map (fn [x]
+                   (get-activities api-server account-id
+                                   access-token x))
+                 date-ranges)))
+  (log/info activities)
+  (log/info (str "Total of " (count activities) " activities"))
   (def trades
     (map convert-activity-to-trade
-         (filter is-trade acc-activities)))
+         (filter is-trade activities)))
   (log/info trades)
-  (log/info "Completed program execution"))
+  (log/info (str "Total of " (count trades) " trades"))
+  (log/info "Completed ACB calculation"))
 
 
 (defn format-date
@@ -127,7 +139,7 @@
   (def now (jtime/zoned-date-time))
   (def end (java-time/plus start (java-time/days 30)))
   (if (= (jtime/max end now) end)
-    (get-date-range start now)
+    (list (get-date-range start now))
     (list* (get-date-range start end) (get-date-ranges end))))
 
 
@@ -148,4 +160,5 @@
   (def date-ranges (get-date-ranges account-start))
   (log/info date-ranges)
   (update-credentials)
-  (calculate-acb account-id))
+  (calculate-acb account-id date-ranges)
+  (log/info "Completed program execution"))
