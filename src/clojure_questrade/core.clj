@@ -26,7 +26,7 @@
 
 
 ; Structs
-(def trade (create-struct :symbol :net-amount :date :quantity))
+(def trade (create-struct :symbol :action :net-amount :date :quantity))
 (def date-range (create-struct :start :end))
 
 
@@ -81,6 +81,7 @@
   [activity]
   (struct trade
           (get activity "symbol")
+          (get activity "action")
           (get activity "netAmount")
           (get activity "settlementDate")
           (get activity "quantity")))
@@ -96,12 +97,12 @@
           (get date-range :end)) :body))
   (get (ches/parse-string acc-activities-body) "activities"))
 
-(defn calculate-acb-for-symbol
+(defn calc-cap-gains-for-symbol
   "Calculate ACB for a given symbol"
-  []
+  [trades]
   (log/info "Calculated ACB for symbol"))
 
-(defn calculate-acb
+(defn calc-cap-gains
   "Calculate the adjusted cost base given an account and the date ranges"
   [account-id, date-ranges]
   ; Read auth and api details
@@ -175,5 +176,5 @@
   (def date-ranges (get-date-ranges account-start))
   (log/info date-ranges)
   (update-credentials)
-  (calculate-acb account-id date-ranges)
+  (calc-cap-gains account-id date-ranges)
   (log/info "Completed program execution"))
