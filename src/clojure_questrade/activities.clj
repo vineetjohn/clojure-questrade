@@ -9,7 +9,6 @@
 (defn get-activities-endpoint
   "Get Questrade activities api endpoint"
   [api-url, account-id, start, end]
-  (log/info (str "Request from " start " to " end))
   (format activities-api-endpoint api-url account-id
           start end))
 

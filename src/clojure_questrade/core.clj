@@ -18,9 +18,8 @@
     :validate [#(and (not (nil? %)) (not (empty? %)))
                "Account identifier is needed"]]
    ["-y" "--tax_year TAX_YEAR" "Tax year"
-    :default (jtime/as (jtime/local-date) :year)
-    :parse-fn #(java.lang.Long. %)
-    :validate [#(> 2017 %)
+    :parse-fn #(Integer/parseInt %)
+    :validate [#(< 2017 %)
                "Tax year cannot be less than 2018"]]
    ["-h" "--help"]])
 
@@ -64,10 +63,10 @@
       (auth/get-auth-response
        (get (read-json-with-keys auth-tokens-file-path)
             :refresh_token)))
-    (log/info "auth-response" auth-response)
+    ; (log/info "auth-response" auth-response)
     (def auth-tokens
       (parse-tokens (get auth-response :body)))
-    (log/info "auth-tokens" auth-tokens)
+    ; (log/info "auth-tokens" auth-tokens)
     (save-auth-tokens auth-tokens)
     (log/info "Credentials updated")
     (catch Exception e
@@ -75,11 +74,14 @@
                       (.getMessage e)))
       (throw e))))
 
-(defn is-trade
-  "Check if an activity is a trade or not"
-  [activity]
+(defn is-trade-for-tax-year
+  "Check if an activity is a trade or not in the required tax year"
+  [activity, tax-year]
   (def action (get activity "action"))
-  (or (= action "Buy") (= action "Sell")))
+  (def date-str (get activity "settlementDate"))
+  (or (= action "Buy")
+      (and (= action "Sell")
+           (= (subs date-str 0 4) (str tax-year)))))
 
 (defn convert-activity-to-trade
   "Convert an activity to a minimal trade information structure"
@@ -105,15 +107,15 @@
 (defn calc-cap-gains-for-symbol
   "Calculate ACB for a given symbol"
   [trades, total-shares, total-cost, total-gains]
-  (log/info (str "Trades: " (apply list trades)))
-  (log/info (str "Gains: " total-gains))
+  ; (log/info (str "Trades: " (apply list trades)))
+  ; (log/info (str "Gains: " total-gains))
   (if (empty? trades)
     total-gains
     (do (def trade (first trades))
         (def action (get trade :action))
         (def shares (get trade :quantity))
         (def amount (get trade :net-amount))
-        (log/info (str "Trade: " trade))
+        ; (log/info (str "Trade: " trade))
         (if (= action "Buy")
           (calc-cap-gains-for-symbol (rest trades)
                                      (+ total-shares shares)
@@ -129,7 +131,7 @@
 
 (defn calc-cap-gains
   "Calculate the adjusted cost base given an account and the date ranges"
-  [account-id, date-ranges]
+  [account-id, date-ranges, tax-year]
   ; Read auth and api details
   (def auth-tokens (read-json-with-keys auth-tokens-file-path))
   (def access-token (get auth-tokens :access_token))
@@ -142,34 +144,35 @@
                    (get-activities api-server account-id
                                    access-token x))
                  date-ranges)))
-  (log/info activities)
-  (log/info (str "Total of " (count activities) " activities"))
+  ; (log/info activities)
+  ; (log/info (str "Total of " (count activities) " activities"))
 
   ; Parse activities into trades
   (def trades
     (map convert-activity-to-trade
-         (filter is-trade activities)))
-  (log/info trades)
-  (log/info (str "Total of " (count trades) " trades"))
+         (filter (fn [x] (is-trade-for-tax-year x tax-year))
+                 activities)))
+  ; (log/info trades)
+  ; (log/info (str "Total of " (count trades) " trades"))
 
   ; Get unique symbols traded
   (def symbols (set (map (fn [x] (get x :symbol)) trades)))
-  (log/info (str "symbols: " symbols))
+  ; (log/info (str "symbols: " symbols))
 
   (def symbol-trades
     (map
      (fn [x] (filter (fn [y] (= x (get y :symbol))) trades))
      symbols))
-  (log/info symbol-trades)
+  ; (log/info symbol-trades)
 
   (def symbol-capital-gains
     (map
      (fn [x] (calc-cap-gains-for-symbol x 0 0 0))
      symbol-trades))
-  (log/info (str "Capital gains for symbols "
-                 (apply list symbol-capital-gains)))
+  ; (log/info (str "Capital gains for symbols "
+  ;                (apply list symbol-capital-gains)))
 
-  (log/info "Completed ACB calculation"))
+  (double (reduce + 0 symbol-capital-gains)))
 
 
 (defn format-date
@@ -203,17 +206,21 @@
   [& args]
   (log/info "Starting program execution")
   (def parsed-options (get (cli/parse-opts args cli-options) :options))
+  (def tax-year (get parsed-options :tax_year))
   (def account
     (get (read-json-with-keys accounts-file-path)
          (keyword (get parsed-options :account_name))))
-  (log/info (str "Tax year: " (get parsed-options :tax_year)))
   (def account-id (get account :id))
   (def account-start
     (jtime/zoned-date-time "yyyy-MM-dd HH:mm:ss VV"
                            (get account :start-date)))
-  (log/info (str account-id ", " account-start))
+  (log/info (str "Account ID: " account-id ", Start Date: " account-start))
+  (log/info (str "Tax year: " tax-year))
+  ; (System/exit 0)
   (def date-ranges (get-date-ranges account-start))
-  (log/info date-ranges)
+  ; (log/info date-ranges)
   (update-credentials)
-  (calc-cap-gains account-id date-ranges)
+  (def cap-gains (calc-cap-gains account-id date-ranges tax-year))
+  (log/info (str "Overall capital gains for " tax-year ":"
+                 " $" (format "%.2f" cap-gains)))
   (log/info "Completed program execution"))
