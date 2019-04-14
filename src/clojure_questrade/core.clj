@@ -17,6 +17,11 @@
     :parse-fn #(identity %)
     :validate [#(and (not (nil? %)) (not (empty? %)))
                "Account identifier is needed"]]
+   ["-y" "--tax_year TAX_YEAR" "Tax year"
+    :default (jtime/as (jtime/local-date) :year)
+    :parse-fn #(java.lang.Long. %)
+    :validate [#(> 2017 %)
+               "Tax year cannot be less than 2018"]]
    ["-h" "--help"]])
 
 
@@ -201,6 +206,7 @@
   (def account
     (get (read-json-with-keys accounts-file-path)
          (keyword (get parsed-options :account_name))))
+  (log/info (str "Tax year: " (get parsed-options :tax_year)))
   (def account-id (get account :id))
   (def account-start
     (jtime/zoned-date-time "yyyy-MM-dd HH:mm:ss VV"
