@@ -99,10 +99,28 @@
 
 (defn calc-cap-gains-for-symbol
   "Calculate ACB for a given symbol"
-  [trades]
-  (def shares 0)
-  (def paid 0)
-  (int 0))
+  [trades, total-shares, total-cost, total-gains]
+  (log/info (str "Trades: " (apply list trades)))
+  (log/info (str "Gains: " total-gains))
+  (if (empty? trades)
+    total-gains
+    (do (def trade (first trades))
+        (def action (get trade :action))
+        (def shares (get trade :quantity))
+        (def amount (get trade :net-amount))
+        (log/info (str "Trade: " trade))
+        (if (= action "Buy")
+          (calc-cap-gains-for-symbol (rest trades)
+                                     (+ total-shares shares)
+                                     (+ total-cost amount)
+                                     total-gains)
+          (do (def acb (/ total-cost total-shares))
+              (def sale-price (/ amount shares))
+              (def gain (* (- sale-price acb) shares))
+              (calc-cap-gains-for-symbol (rest trades)
+                                         (- total-shares shares)
+                                         (- total-cost (* acb shares))
+                                         (+ total-gains gain)))))))
 
 (defn calc-cap-gains
   "Calculate the adjusted cost base given an account and the date ranges"
@@ -141,7 +159,7 @@
 
   (def symbol-capital-gains
     (map
-     calc-cap-gains-for-symbol
+     (fn [x] (calc-cap-gains-for-symbol x 0 0 0))
      symbol-trades))
   (log/info (str "Capital gains for symbols "
                  (apply list symbol-capital-gains)))
