@@ -159,12 +159,14 @@
   (def symbols (set (map (fn [x] (get x :symbol)) trades)))
   ; (log/info (str "symbols: " symbols))
 
+  ; Get trades grouped by symbols
   (def symbol-trades
     (map
      (fn [x] (filter (fn [y] (= x (get y :symbol))) trades))
      symbols))
   ; (log/info symbol-trades)
 
+  ; For each group of symbol trades, calculate capital gains
   (def symbol-capital-gains
     (map
      (fn [x] (calc-cap-gains-for-symbol x 0 0 0))
@@ -172,6 +174,7 @@
   ; (log/info (str "Capital gains for symbols "
   ;                (apply list symbol-capital-gains)))
 
+  ; Aggregate the capital gains
   (double (reduce + 0 symbol-capital-gains)))
 
 
