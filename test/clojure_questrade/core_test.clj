@@ -24,10 +24,13 @@
   (is (= (get tokens :access_token) "abc"))
   (is (= (get tokens :api_server) "https://example.com/")))
 
-(deftest is-trade-test
-  (def mock-activity-1 {"action" "Buy"})
-  (def mock-activity-2 {"action" "Deposit"})
-  (def mock-activity-3 {"action" "Sell"})
-  (is (is-trade mock-activity-1))
-  (is (not (is-trade mock-activity-2)))
-  (is (is-trade mock-activity-3)))
+(deftest is-trade-for-tax-year-test
+  (def mock-activity-1 {"action" "Buy", "settlementDate" "2018-01-01"})
+  (def mock-activity-2 {"action" "Deposit", "settlementDate" "2019-01-01"})
+  (def mock-activity-3 {"action" "Sell", "settlementDate" "2018-01-01"})
+  (def mock-activity-4 {"action" "Sell", "settlementDate" "2019-01-01"})
+  (def mock-tax-year "2019")
+  (is (is-trade-for-tax-year mock-activity-1 mock-tax-year))
+  (is (not (is-trade-for-tax-year mock-activity-2 mock-tax-year)))
+  (is (not (is-trade-for-tax-year mock-activity-3 mock-tax-year)))
+  (is (is-trade-for-tax-year mock-activity-4 mock-tax-year)))
