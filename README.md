@@ -2,13 +2,19 @@
 
 [![Build Status](https://travis-ci.com/vineetjohn/clojure-questrade.svg?token=9zWLe6zMeUk6X9pWXLzU&branch=master)](https://travis-ci.com/vineetjohn/clojure-questrade)
 
-A Clojure library designed to retrieve and report account details on Questrade.
+A Clojure library designed to retrieve and report account details on Questrade, to help calculate capital gains for tax reporting, especially for non-registered accounts.
 
 ## Usage
 
-## Setup
+### Setup
 - Install [Clojure](https://clojure.org/)
 - Install [Leiningen](https://leiningen.org/)
+- Setup a Questrade application and store the refresh token in the [`.auth-tokens` file](https://github.com/vineetjohn/clojure-questrade/blob/master/.auth-tokens.json)
+
+### Calculate capital gains
+- `lein run -a ${ACCOUNT_IDENTIFIER} -y ${TAX_YEAR}`
+  - e.g. `lein run -a margin -y 2018`
+  - e.g. `lein run -a rrsp -y 2018`
 
 ### Run tests
 - `lein test`
