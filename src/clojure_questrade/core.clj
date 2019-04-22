@@ -63,10 +63,8 @@
       (auth/get-auth-response
        (get (read-json-with-keys auth-tokens-file-path)
             :refresh_token)))
-    ; (log/info "auth-response" auth-response)
     (def auth-tokens
       (parse-tokens (get auth-response :body)))
-    ; (log/info "auth-tokens" auth-tokens)
     (save-auth-tokens auth-tokens)
     (log/info "Credentials updated")
     (catch Exception e
@@ -107,15 +105,12 @@
 (defn calc-cap-gains-for-symbol
   "Calculate ACB for a given symbol"
   [trades, total-shares, total-cost, total-gains]
-  ; (log/info (str "Trades: " (apply list trades)))
-  ; (log/info (str "Gains: " total-gains))
   (if (empty? trades)
     total-gains
     (do (def trade (first trades))
         (def action (get trade :action))
         (def shares (get trade :quantity))
         (def amount (get trade :net-amount))
-        ; (log/info (str "Trade: " trade))
         (if (= action "Buy")
           (calc-cap-gains-for-symbol (rest trades)
                                      (+ total-shares shares)
@@ -128,6 +123,24 @@
                                          (- total-shares shares)
                                          (- total-cost (* acb shares))
                                          (+ total-gains gain)))))))
+
+(defn get-symbol-trades
+  "Transform trades into a map of symbols to trades"
+  [trades, symbol-trades]
+  (if (empty? trades)
+    symbol-trades
+    (do
+      (def trade (first trades))
+      (def trade-symbol (get trade :symbol))
+      (def prev-trades (get symbol-trades trade-symbol))
+      (def new-symbol-trades
+        (assoc symbol-trades
+               trade-symbol
+               (if (nil? prev-trades)
+                 (vector trade)
+                 (conj prev-trades trade))))
+      (get-symbol-trades (rest trades)
+                         new-symbol-trades))))
 
 (defn calc-cap-gains
   "Calculate the adjusted cost base given an account and the date ranges"
@@ -144,35 +157,24 @@
                    (get-activities api-server account-id
                                    access-token x))
                  date-ranges)))
-  ; (log/info activities)
-  ; (log/info (str "Total of " (count activities) " activities"))
+  (log/info (str "Total of " (count activities) " activities"))
 
   ; Parse activities into trades
   (def trades
     (map convert-activity-to-trade
          (filter (fn [x] (is-trade-for-tax-year x tax-year))
                  activities)))
-  ; (log/info trades)
-  ; (log/info (str "Total of " (count trades) " trades"))
+  (log/info (str "Total of " (count trades) " trades"))
 
-  ; Get unique symbols traded
-  (def symbols (set (map (fn [x] (get x :symbol)) trades)))
-  ; (log/info (str "symbols: " symbols))
-
-  ; Get trades grouped by symbols
   (def symbol-trades
-    (map
-     (fn [x] (filter (fn [y] (= x (get y :symbol))) trades))
-     symbols))
-  ; (log/info symbol-trades)
+    (get-symbol-trades (apply list trades) (hash-map)))
 
   ; For each group of symbol trades, calculate capital gains
   (def symbol-capital-gains
     (map
-     (fn [x] (calc-cap-gains-for-symbol x 0 0 0))
-     symbol-trades))
-  ; (log/info (str "Capital gains for symbols "
-  ;                (apply list symbol-capital-gains)))
+     (fn [x] (calc-cap-gains-for-symbol (sort-by :date (second x))
+                                        0 0 0))
+     (seq symbol-trades)))
 
   ; Aggregate the capital gains
   (double (reduce + 0 symbol-capital-gains)))
@@ -219,9 +221,7 @@
                            (get account :start-date)))
   (log/info (str "Account ID: " account-id ", Start Date: " account-start))
   (log/info (str "Tax year: " tax-year))
-  ; (System/exit 0)
   (def date-ranges (get-date-ranges account-start))
-  ; (log/info date-ranges)
   (update-credentials)
   (def cap-gains (calc-cap-gains account-id date-ranges tax-year))
   (log/info (str "Overall capital gains for " tax-year ":"
