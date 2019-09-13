@@ -218,7 +218,7 @@
   (def account-id (get account :id))
   (def account-start
     (jtime/zoned-date-time "yyyy-MM-dd HH:mm:ss VV"
-                           (get account :start-date)))
+                           (str (get account :start-date) " 00:00:00 Z")))
   (log/info (str "Account ID: " account-id ", Start Date: " account-start))
   (log/info (str "Tax year: " tax-year))
   (def date-ranges (get-date-ranges account-start))
