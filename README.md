@@ -9,7 +9,7 @@ A simple Clojure application designed to retrieve and report account details on 
 ### Setup
 - Install [Clojure](https://clojure.org/)
 - Install [Leiningen](https://leiningen.org/)
-- Setup a Questrade application and store the refresh token in the [`.auth-tokens`](https://github.com/vineetjohn/clojure-questrade/blob/master/.auth-tokens.json) file.
+- [Setup a Questrade application](https://login.questrade.com/APIAccess/UserApps.aspx) and store the refresh token in the [`.auth-tokens`](https://github.com/vineetjohn/clojure-questrade/blob/master/.auth-tokens.json) file.
 - Update the [`.accounts.json`](https://github.com/vineetjohn/clojure-questrade/blob/master/.accounts.json) file to reflect your own Questrade accounts.
 
 ### Calculate capital gains
