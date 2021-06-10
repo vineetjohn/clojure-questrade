@@ -1,3 +1,5 @@
+DEPRECATED in favor of https://github.com/vineetjohn/questrade-scripts
+
 # Clojure - Questrade
 
 [![Build Status](https://travis-ci.com/vineetjohn/clojure-questrade.svg?token=9zWLe6zMeUk6X9pWXLzU&branch=master)](https://travis-ci.com/vineetjohn/clojure-questrade)
